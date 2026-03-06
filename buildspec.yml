@@ -5,6 +5,8 @@ phases:
     commands:
       - echo "Calling API..."
       - >
-        curl -X GET "http://124.106.124.13/app/api/v1/license"
+        curl -X GET "http://124.106.124.13/app/api/v1/scans"
         -H "accept: application/json"
+        -H "Content-Type: application/json"
         -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDkzNzMyNSwidXVpZCI6ImE4ZDE0ZWQwLTMzNzYtNGQyNC1iNjM2LThmYjA2NDI1OTcwNCJ9.3RPZHC4D2MysZIaic_GlqVIw3GnV5ppfMYZ_Ti_V1ryzdWsjaKS25gMC_At_YCDxu3dsJNd-qYmcQQ8PBScu-Q"
+        -d "[{"uuid": "92ffebf5-706b-46e7-8e6e-6f2381c11bfe","patch": {}}]"
