@@ -1,0 +1,7 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo "Calling API..."
+      - curl -X GET "http://192.168.168.67/app/api/v1/license" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDkzNzMyNSwidXVpZCI6ImE4ZDE0ZWQwLTMzNzYtNGQyNC1iNjM2LThmYjA2NDI1OTcwNCJ9.3RPZHC4D2MysZIaic_GlqVIw3GnV5ppfMYZ_Ti_V1ryzdWsjaKS25gMC_At_YCDxu3dsJNd-qYmcQQ8PBScu-Q"
