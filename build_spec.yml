@@ -18,7 +18,7 @@ phases:
         -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDkzNzMyNSwidXVpZCI6ImE4ZDE0ZWQwLTMzNzYtNGQyNC1iNjM2LThmYjA2NDI1OTcwNCJ9.3RPZHC4D2MysZIaic_GlqVIw3GnV5ppfMYZ_Ti_V1ryzdWsjaKS25gMC_At_YCDxu3dsJNd-qYmcQQ8PBScu-Q" \
         -H "accept: */*" \
         -H "Content-Type: multipart/form-data" \
-        -F "uuid=fa3752ed-ee72-4614-b182-6ee9e229c68e" \
+        -F "uuid=92ffebf5-706b-46e7-8e6e-6f2381c11bfe" \
         -F "languages=ABAP,APEX,CS,CCPP,COBOL,CONFIG,DART,GO,GROOVY,HTML5,JAVA,JAVASCRIPT,LOTUS,OBJC,PASCAL,PHP,PLSQL,PYTHON,PERL,RUBY,RUST,SOLIDITY,SWIFT,TSX,VB,VYPER,ONES" \
         -F "link=https://git-codecommit.us-east-1.amazonaws.com/v1/repos/Vulnerable-Soure-Code" \
         -F "vcsAccount=7f2e9359-4c18-4033-ab80-c07f5bf71741")
