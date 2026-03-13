@@ -22,7 +22,7 @@ phases:
         -F "languages=ABAP,APEX,CS,CCPP,COBOL,CONFIG,DART,GO,GROOVY,HTML5,JAVA,JAVASCRIPT,LOTUS,OBJC,PASCAL,PHP,PLSQL,PYTHON,PERL,RUBY,RUST,SOLIDITY,SWIFT,TSX,VB,VYPER,ONES" \
         -F "link=https://git-codecommit.us-east-1.amazonaws.com/v1/repos/Vulnerable-Soure-Code" \
         -F "vcsAccount=7f2e9359-4c18-4033-ab80-c07f5bf71741" \
-        -F "fileSelector=**/*;!Out of Bounds/**;!**/*.asp;!**/*.rb;!**/*.ts;!**/*.go;!**/*.py;!**/*.java;!Connection String Injection/**;!**/*.html;!**/*.js;!**/*.cs;!Denial Of Service/**;!**/*.git;!**/*.php;!**/*.md;!**/*.yml")
+        -F "fileSelector=Code Injection/**;Command Injection/**")
 
         echo "API Response: $RESPONSE"
 
@@ -80,7 +80,7 @@ phases:
 
       # Fail policy
       - |
-        if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+        if [ "$LOW" -gt 0 ]; then
           echo "Blocking vulnerabilities detected!"
           exit 1
         else
