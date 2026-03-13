@@ -1,0 +1,86 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing dependencies"
+      - yum install -y jq
+
+  build:
+    commands:
+
+      - echo "Starting SAST Scan"
+
+      # Start scan
+      - |
+        RESPONSE=$(curl -s -X POST "http://124.106.124.13/app/api/v1/scan/start" \
+        -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDkzNzMyNSwidXVpZCI6ImE4ZDE0ZWQwLTMzNzYtNGQyNC1iNjM2LThmYjA2NDI1OTcwNCJ9.3RPZHC4D2MysZIaic_GlqVIw3GnV5ppfMYZ_Ti_V1ryzdWsjaKS25gMC_At_YCDxu3dsJNd-qYmcQQ8PBScu-Q" \
+        -H "accept: */*" \
+        -H "Content-Type: multipart/form-data" \
+        -F "uuid=fa3752ed-ee72-4614-b182-6ee9e229c68e" \
+        -F "languages=ABAP,APEX,CS,CCPP,COBOL,CONFIG,DART,GO,GROOVY,HTML5,JAVA,JAVASCRIPT,LOTUS,OBJC,PASCAL,PHP,PLSQL,PYTHON,PERL,RUBY,RUST,SOLIDITY,SWIFT,TSX,VB,VYPER,ONES" \
+        -F "link=https://git-codecommit.us-east-1.amazonaws.com/v1/repos/Vulnerable-Soure-Code" \
+        -F "vcsAccount=7f2e9359-4c18-4033-ab80-c07f5bf71741")
+
+        echo "API Response: $RESPONSE"
+
+        SCAN_ID=$(echo $RESPONSE | jq -r '.scanUuid')
+        PROJECT_ID=$(echo $RESPONSE | jq -r '.projUuid')
+
+        echo "Project ID: $PROJECT_ID"
+        echo "Scan ID: $SCAN_ID"
+
+      # Poll scan progress
+      - |
+        echo "Polling scan progress..."
+
+        while true
+        do
+          PROGRESS_RESPONSE=$(curl -s -X GET "http://124.106.124.13/app/api/v1/scans/$SCAN_ID/progress" \
+          -H 'accept: application/json' \
+          -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDkzNzMyNSwidXVpZCI6ImE4ZDE0ZWQwLTMzNzYtNGQyNC1iNjM2LThmYjA2NDI1OTcwNCJ9.3RPZHC4D2MysZIaic_GlqVIw3GnV5ppfMYZ_Ti_V1ryzdWsjaKS25gMC_At_YCDxu3dsJNd-qYmcQQ8PBScu-Q")
+
+          PROGRESS=$(echo $PROGRESS_RESPONSE | jq -r '.progress')
+          CURRENT=$(echo $PROGRESS_RESPONSE | jq -r '.current')
+          TOTAL=$(echo $PROGRESS_RESPONSE | jq -r '.total')
+
+          echo "Scan progress: $PROGRESS% ($CURRENT / $TOTAL files)"
+
+          if [ "$PROGRESS" = "100" ]; then
+            echo "Scan finished."
+            break
+          fi
+
+          echo "Scan still running... checking again in 20 seconds"
+          sleep 20
+        done
+
+      # Get vulnerability results
+      - |
+        echo "Retrieving vulnerabilities..."
+
+        VULN_RESPONSE=$(curl -s -X GET \
+        "http://124.106.124.13/app/api/v1/scans/$SCAN_ID/vulnerabilities/filtered?standard=true&notDecompiled=true&locale=en&grouping=TYPE&withIssueEvents=true&withoutIssueEvents=true&withJiraTasks=true&withoutJiraTasks=true&withTurboTasks=true&withoutTurboTasks=true&withDastCorrelation=true&withoutDastCorrelation=true&cq=false" \
+        -H 'accept: application/json' \
+        -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDkzNzMyNSwidXVpZCI6ImE4ZDE0ZWQwLTMzNzYtNGQyNC1iNjM2LThmYjA2NDI1OTcwNCJ9.3RPZHC4D2MysZIaic_GlqVIw3GnV5ppfMYZ_Ti_V1ryzdWsjaKS25gMC_At_YCDxu3dsJNd-qYmcQQ8PBScu-Q")
+
+        echo "$VULN_RESPONSE"
+
+      # Parse severity counts
+      - |
+        CRITICAL=$(echo $VULN_RESPONSE | jq '[.[]?.severities[]? | select(.severity==3) | .amount] | add // 0')
+        HIGH=$(echo $VULN_RESPONSE | jq '[.[]?.severities[]? | select(.severity==2) | .amount] | add // 0')
+        LOW=$(echo $VULN_RESPONSE | jq '[.[]?.severities[]? | select(.severity==1) | .amount] | add // 0')
+
+        echo "Critical vulnerabilities: $CRITICAL"
+        echo "High vulnerabilities: $HIGH"
+        echo "Low vulnerabilities: $LOW"
+
+      # Fail policy
+      - |
+        if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+          echo "Blocking vulnerabilities detected!"
+          exit 1
+        else
+          echo "No blocking vulnerabilities detected."
+        fi
